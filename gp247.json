@@ -1,0 +1,17 @@
+{
+    "name": "MCP Server",
+    "image": "images/mcp.svg",
+    "auth": "GP247",
+    "email": "support@gp247.net",
+    "link": "https://GP247.net",
+    "configGroup": "Plugins",
+    "configCode": "Other",
+    "configKey": "McpServer",
+    "version": "1.0.0",
+    "requireCore": ["3.1"],
+    "requireUpdateFrom": "1.0.0",
+    "requireComposerPackages": ["gp247/shop", "laravel/mcp"],
+    "requireGp247Extensions": [],
+    "requireLivewire": true,
+    "storeScope": "global"
+}
