@@ -24,16 +24,16 @@ Không có MCP, bạn phải tự mở từng màn quản trị, lọc, đọc s
 cửa hàng, nhận dữ liệu (đã lọc theo quyền của bạn) và trả lời bằng ngôn ngữ tự nhiên.
 
 ```mermaid
-flowchart LR
-    U["👤 Bạn<br/>chủ cửa hàng / nhân viên"] -- "1. hỏi bằng lời thường" --> A["🤖 AI agent<br/>Claude · Cursor · VS Code"]
-    A -- "2. gọi công cụ<br/>HTTPS + token" --> M
+flowchart TD
+    U["👤 Bạn"] -- "① hỏi bằng lời thường" --> A["🤖 AI agent"]
+    A -- "② gọi công cụ · HTTPS + token" --> M
     subgraph SITE["🏪 Site S-Cart của bạn"]
-        M["🔌 MCP Server<br/>plugin này"] -- "3. kiểm tra" --> G{"🛡️ 5 lớp<br/>quyền & phạm vi"}
-        G -- "được phép" --> D[("📦 Dữ liệu cửa hàng<br/>sản phẩm · đơn · khách · doanh thu")]
+        M["🔌 MCP Server"] -- "③ kiểm tra" --> G{"🛡️ 5 lớp"}
         G -. "không được phép" .-> X["⛔ Từ chối"]
-        M -. "ghi mọi lần gọi" .-> L["📝 Nhật ký quản trị"]
+        G -- "được phép" --> D[("📦 Dữ liệu cửa hàng")]
+        G -. "mọi lần gọi" .-> L["📝 Nhật ký"]
     end
-    D -- "4. kết quả<br/>đã che thông tin khách" --> R["💬 Agent trả lời bạn"]
+    D -- "④ kết quả · đã che thông tin khách" --> R["💬 Agent trả lời bạn"]
 ```
 
 ### Một câu hỏi đi qua hệ thống thế nào

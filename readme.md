@@ -24,16 +24,16 @@ Without MCP, you open each admin screen, filter, read the numbers and put them t
 calls the right shop tools, receives the data (already filtered by your permissions) and answers in plain language.
 
 ```mermaid
-flowchart LR
-    U["👤 You<br/>shop owner / staff"] -- "1. ask in plain language" --> A["🤖 AI agent<br/>Claude · Cursor · VS Code"]
-    A -- "2. call a tool<br/>HTTPS + token" --> M
+flowchart TD
+    U["👤 You"] -- "① ask in plain language" --> A["🤖 AI agent"]
+    A -- "② call a tool · HTTPS + token" --> M
     subgraph SITE["🏪 Your S-Cart site"]
-        M["🔌 MCP Server<br/>this plugin"] -- "3. check" --> G{"🛡️ 5 checks<br/>permissions & scope"}
-        G -- "allowed" --> D[("📦 Shop data<br/>products · orders · customers · revenue")]
+        M["🔌 MCP Server"] -- "③ check" --> G{"🛡️ 5 checks"}
         G -. "not allowed" .-> X["⛔ Refused"]
-        M -. "records every call" .-> L["📝 Admin log"]
+        G -- "allowed" --> D[("📦 Shop data")]
+        G -. "every call" .-> L["📝 Admin log"]
     end
-    D -- "4. result<br/>customer details masked" --> R["💬 The agent answers you"]
+    D -- "④ result · customer details masked" --> R["💬 The agent answers you"]
 ```
 
 ### How one question travels through the system
