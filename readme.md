@@ -19,6 +19,46 @@ speaks MCP, you can ask your agent:
 
 The agent always acts **on behalf of one admin account** and **can never do more** than that account can do in the admin panel.
 
+### The big picture
+Without MCP, you open each admin screen, filter, read the numbers and put them together yourself. With MCP, you just ask; the agent
+calls the right shop tools, receives the data (already filtered by your permissions) and answers in plain language.
+
+```mermaid
+flowchart LR
+    U["👤 You<br/>shop owner / staff"] -- "1. ask in plain language" --> A["🤖 AI agent<br/>Claude · Cursor · VS Code"]
+    A -- "2. call a tool<br/>HTTPS + token" --> M
+    subgraph SITE["🏪 Your S-Cart site"]
+        M["🔌 MCP Server<br/>this plugin"] -- "3. check" --> G{"🛡️ 5 checks<br/>permissions & scope"}
+        G -- "allowed" --> D[("📦 Shop data<br/>products · orders · customers · revenue")]
+        G -. "not allowed" .-> X["⛔ Refused"]
+        M -. "records every call" .-> L["📝 Admin log"]
+    end
+    D -- "4. result<br/>customer details masked" --> R["💬 The agent answers you"]
+```
+
+### How one question travels through the system
+For example, you ask *"How much did we sell this week?"*:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as 👤 You
+    participant A as 🤖 AI agent
+    participant M as 🔌 MCP Server
+    participant S as 📦 Shop data
+    U->>A: "How much did we sell this week?"
+    A->>M: store_info (currency, status codes)
+    M->>S: read store information
+    S-->>M: store name, USD, status codes
+    M-->>A: result
+    A->>M: sales_summary (Monday to today)
+    M->>M: run the 5 checks + write the log
+    M->>S: read Done orders in the date range
+    S-->>M: revenue per currency, order count, best sellers
+    M-->>A: structured result
+    A-->>U: "This week: 12,450 USD from 87 orders,<br/>best seller is ..."
+```
+
 ## Available tools
 
 | Tool | What it does | Needs permission on admin screen |
@@ -158,6 +198,21 @@ A tool call runs only when **all five layers** allow it:
 4. **Admin permissions** — the token owner may use the matching admin screen (view for reads, edit for writes).
 5. **Data** — only within the account's store scope.
 
+```mermaid
+flowchart TD
+    R["📨 The agent calls a tool"] --> L1{"1️⃣ Site<br/>endpoint & tool switched on?"}
+    L1 -- "no" --> X1["⛔ Refused / tool not visible"]
+    L1 -- "yes" --> L2{"2️⃣ User<br/>account active, has MCP — use?"}
+    L2 -- "no" --> X2["⛔ Refused (401 / 403)"]
+    L2 -- "yes" --> L3{"3️⃣ Token<br/>not expired, right level, tool allowed?"}
+    L3 -- "no" --> X3["⛔ Refused"]
+    L3 -- "yes" --> L4{"4️⃣ Admin permissions<br/>allowed on the matching screen?"}
+    L4 -- "no" --> X4["⛔ Refused"]
+    L4 -- "yes" --> L5{"5️⃣ Data<br/>record belongs to your store?"}
+    L5 -- "no" --> X5["🔍 Answers 'not found'"]
+    L5 -- "yes" --> OK["✅ Run the tool<br/>mask customer details · write the log"]
+```
+
 Also:
 - **Tokens**: the server stores only a hash (never the original token); revocation takes effect immediately.
 - **Write tools** always take two steps — the first call returns only a *preview* with a confirmation code; the agent must ask you
@@ -169,6 +224,29 @@ Also:
 - **Audit log**: every tool call (success, denied, error) is written to the admin operation log — never the token, the confirmation
   code or raw contact details.
 - There is no tool that runs SQL, reads logs or executes system commands.
+
+### Write tools: always preview, then confirm
+For example, you tell the agent *"Move order OR-1024 to Processing"* (write tool on, "Read + write" token):
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as 👤 You
+    participant A as 🤖 AI agent
+    participant M as 🔌 MCP Server
+    participant O as 📦 Orders
+    U->>A: "Move order OR-1024 to Processing"
+    A->>M: update_order_status (no confirmation code yet)
+    M->>O: read the current status only
+    M-->>A: preview + confirmation code (5 minutes, single use)
+    A-->>U: "Order OR-1024: New → Processing. OK?"
+    U->>A: "OK"
+    A->>M: update_order_status + confirmation code
+    M->>M: re-run the 5 checks, consume the code (reuse is refused)
+    M->>O: change the status with the admin panel's rules<br/>(restock on cancel, order history)
+    M-->>A: updated
+    A-->>U: "Order OR-1024 is now Processing"
+```
 
 ## Multi-store sites
 On sites with advanced store partitioning, as long as no MCP store resolver is registered, **only the top administrator** can use
@@ -276,4 +354,4 @@ confirm. A well-behaved agent asks you between the two; give write tokens only t
 
 ---
 
-<sub>📅 **Last updated:** 2026-10-09 · ✍️ **Author:** GP247</sub>
+<sub>📅 **Last updated:** 2026-10-10 · ✍️ **Author:** GP247</sub>

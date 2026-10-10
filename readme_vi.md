@@ -19,6 +19,46 @@ bạn có thể hỏi agent:
 
 Agent luôn hành động **thay mặt một tài khoản quản trị** và **không bao giờ làm được nhiều hơn** tài khoản đó trên trang quản trị.
 
+### Bức tranh tổng thể
+Không có MCP, bạn phải tự mở từng màn quản trị, lọc, đọc số rồi tổng hợp. Có MCP, bạn chỉ cần hỏi; agent tự gọi đúng công cụ của
+cửa hàng, nhận dữ liệu (đã lọc theo quyền của bạn) và trả lời bằng ngôn ngữ tự nhiên.
+
+```mermaid
+flowchart LR
+    U["👤 Bạn<br/>chủ cửa hàng / nhân viên"] -- "1. hỏi bằng lời thường" --> A["🤖 AI agent<br/>Claude · Cursor · VS Code"]
+    A -- "2. gọi công cụ<br/>HTTPS + token" --> M
+    subgraph SITE["🏪 Site S-Cart của bạn"]
+        M["🔌 MCP Server<br/>plugin này"] -- "3. kiểm tra" --> G{"🛡️ 5 lớp<br/>quyền & phạm vi"}
+        G -- "được phép" --> D[("📦 Dữ liệu cửa hàng<br/>sản phẩm · đơn · khách · doanh thu")]
+        G -. "không được phép" .-> X["⛔ Từ chối"]
+        M -. "ghi mọi lần gọi" .-> L["📝 Nhật ký quản trị"]
+    end
+    D -- "4. kết quả<br/>đã che thông tin khách" --> R["💬 Agent trả lời bạn"]
+```
+
+### Một câu hỏi đi qua hệ thống thế nào
+Ví dụ bạn hỏi *"Tuần này bán được bao nhiêu?"*:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as 👤 Bạn
+    participant A as 🤖 AI agent
+    participant M as 🔌 MCP Server
+    participant S as 📦 Dữ liệu cửa hàng
+    U->>A: "Tuần này bán được bao nhiêu?"
+    A->>M: store_info (lấy tiền tệ, bảng mã trạng thái)
+    M->>S: đọc thông tin cửa hàng
+    S-->>M: tên cửa hàng, USD, mã trạng thái
+    M-->>A: kết quả
+    A->>M: sales_summary (từ thứ Hai tới hôm nay)
+    M->>M: kiểm 5 lớp + ghi nhật ký
+    M->>S: đọc đơn Hoàn tất trong khoảng ngày
+    S-->>M: doanh thu theo từng tiền tệ, số đơn, top sản phẩm
+    M-->>A: kết quả có cấu trúc
+    A-->>U: "Tuần này: 12.450 USD từ 87 đơn,<br/>bán chạy nhất là ..."
+```
+
 ## Công cụ có sẵn
 
 | Công cụ | Làm gì | Cần quyền ở màn quản trị |
@@ -155,6 +195,21 @@ Một lời gọi công cụ chỉ chạy khi **cả năm lớp** cho phép:
 4. **Phân quyền quản trị** — chủ token có quyền ở màn quản trị tương ứng (đọc cần quyền xem, ghi cần quyền sửa).
 5. **Dữ liệu** — chỉ trong phạm vi cửa hàng của tài khoản.
 
+```mermaid
+flowchart TD
+    R["📨 Agent gọi một công cụ"] --> L1{"1️⃣ Site<br/>endpoint & công cụ đang bật?"}
+    L1 -- "không" --> X1["⛔ Từ chối / không thấy công cụ"]
+    L1 -- "có" --> L2{"2️⃣ Người dùng<br/>tài khoản hoạt động, có quyền MCP — use?"}
+    L2 -- "không" --> X2["⛔ Từ chối (401 / 403)"]
+    L2 -- "có" --> L3{"3️⃣ Token<br/>còn hạn, đúng mức, công cụ được phép?"}
+    L3 -- "không" --> X3["⛔ Từ chối"]
+    L3 -- "có" --> L4{"4️⃣ Phân quyền quản trị<br/>có quyền ở màn tương ứng?"}
+    L4 -- "không" --> X4["⛔ Từ chối"]
+    L4 -- "có" --> L5{"5️⃣ Dữ liệu<br/>bản ghi thuộc cửa hàng của bạn?"}
+    L5 -- "không" --> X5["🔍 Trả 'không tìm thấy'"]
+    L5 -- "có" --> OK["✅ Chạy công cụ<br/>che thông tin khách · ghi nhật ký"]
+```
+
 Ngoài ra:
 - **Token**: máy chủ chỉ lưu bản băm (không lưu token gốc); thu hồi có hiệu lực ngay.
 - **Công cụ ghi** luôn hai bước — lần gọi đầu chỉ trả *bản xem trước* kèm mã xác nhận; agent phải hỏi bạn rồi mới gọi lại kèm mã.
@@ -165,6 +220,29 @@ Ngoài ra:
 - **Nhật ký**: mỗi lần gọi công cụ (thành công, bị từ chối, lỗi) được ghi vào nhật ký thao tác quản trị — không ghi token, mã xác
   nhận hay thông tin liên hệ nguyên văn.
 - Không có công cụ chạy SQL, đọc log hay chạy lệnh hệ thống.
+
+### Công cụ ghi: luôn xem trước rồi mới xác nhận
+Ví dụ bạn bảo agent *"Chuyển đơn OR-1024 sang Đang xử lý"* (công cụ ghi đã bật, token "Đọc + ghi"):
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as 👤 Bạn
+    participant A as 🤖 AI agent
+    participant M as 🔌 MCP Server
+    participant O as 📦 Đơn hàng
+    U->>A: "Chuyển đơn OR-1024 sang Đang xử lý"
+    A->>M: update_order_status (chưa có mã xác nhận)
+    M->>O: chỉ đọc trạng thái hiện tại
+    M-->>A: bản xem trước + mã xác nhận (5 phút, dùng 1 lần)
+    A-->>U: "Đơn OR-1024: Mới → Đang xử lý. Đồng ý không?"
+    U->>A: "Đồng ý"
+    A->>M: update_order_status + mã xác nhận
+    M->>M: kiểm lại 5 lớp, tiêu mã (dùng lại sẽ bị từ chối)
+    M->>O: đổi trạng thái theo đúng quy tắc trang quản trị<br/>(hoàn kho khi huỷ, ghi lịch sử đơn)
+    M-->>A: đã cập nhật
+    A-->>U: "Đã chuyển đơn OR-1024 sang Đang xử lý"
+```
 
 ## Site nhiều cửa hàng
 Trên site có phân vùng cửa hàng nâng cao, khi chưa có cách xác định cửa hàng cho MCP, **chỉ quản trị viên cao nhất** dùng được
@@ -268,4 +346,4 @@ xác nhận. Agent đúng chuẩn sẽ hỏi bạn ở giữa hai bước; hãy 
 
 ---
 
-<sub>📅 **Cập nhật lần cuối:** 2026-10-09 · ✍️ **Tác giả (Author):** GP247</sub>
+<sub>📅 **Cập nhật lần cuối:** 2026-10-10 · ✍️ **Tác giả (Author):** GP247</sub>
