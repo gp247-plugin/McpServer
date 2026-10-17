@@ -254,6 +254,9 @@ Plugin phân vùng có thể đăng ký hàm xác định cửa hàng cho MCP qu
 - **Gỡ** plugin: xoá cấu hình, menu, quyền của plugin và **thu hồi mọi token MCP**. Các token API khác không bị ảnh hưởng.
 - **Tắt** plugin (không gỡ): giữ nguyên token; endpoint biến mất cho tới khi bật lại.
 
+## Liên kết
+- GitHub (mã nguồn): [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
+
 ## Giấy phép
 MIT — như S-Cart.
 
