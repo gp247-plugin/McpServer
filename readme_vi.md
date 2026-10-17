@@ -1,4 +1,6 @@
 > 🌐 **Ngôn ngữ:** 🇻🇳 Tiếng Việt (hiện tại) · [🇬🇧 English](./readme.md)
+>
+> 💻 **GitHub (mã nguồn):** [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
 
 # MCP Server — Kết nối AI agent với cửa hàng GP247 / S-Cart
 
@@ -253,9 +255,6 @@ Plugin phân vùng có thể đăng ký hàm xác định cửa hàng cho MCP qu
 ## Gỡ cài đặt
 - **Gỡ** plugin: xoá cấu hình, menu, quyền của plugin và **thu hồi mọi token MCP**. Các token API khác không bị ảnh hưởng.
 - **Tắt** plugin (không gỡ): giữ nguyên token; endpoint biến mất cho tới khi bật lại.
-
-## Liên kết
-- GitHub (mã nguồn): [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
 
 ## Giấy phép
 MIT — như S-Cart.

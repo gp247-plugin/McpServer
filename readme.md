@@ -1,4 +1,6 @@
 > 🌐 **Language:** [🇻🇳 Tiếng Việt](./readme_vi.md) · 🇬🇧 English (current)
+>
+> 💻 **GitHub (source code):** [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
 
 # MCP Server — Connect AI agents to your GP247 / S-Cart shop
 
@@ -257,9 +259,6 @@ A partitioning plugin can register an MCP store resolver in the config key `gp24
 ## Uninstall
 - **Uninstalling** the plugin removes its settings, menu and permissions and **revokes every MCP token**. Other API tokens are untouched.
 - **Disabling** the plugin (without uninstalling) keeps the tokens; the endpoint disappears until you enable it again.
-
-## Links
-- GitHub (source code): [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
 
 ## License
 MIT — same as S-Cart.
