@@ -1,4 +1,4 @@
-> 🌐 **Language:** [🇻🇳 Tiếng Việt](./readme_vi.md) · 🇬🇧 English (current)
+> 🌐 **Language:** [🇻🇳 Tiếng Việt](./readme_vi.md) · 🇬🇧 English (current) · [🇯🇵 日本語](./readme_ja.md)
 >
 > 💻 **GitHub (source code):** [github.com/gp247-plugin/McpServer](https://github.com/gp247-plugin/McpServer)
 
@@ -356,4 +356,4 @@ confirm. A well-behaved agent asks you between the two; give write tokens only t
 
 ---
 
-<sub>📅 **Last updated:** 2026-10-10 · ✍️ **Author:** GP247</sub>
+<sub>📅 **Last updated:** 2026-10-22 · ✍️ **Author:** GP247</sub>
