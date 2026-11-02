@@ -17,6 +17,7 @@ return [
     'token_created_title' => 'Hãy sao chép token ngay',
     'token_created_hint' => 'Token sẽ không hiện lại. Lưu vào cấu hình agent hoặc biến môi trường.',
     'token_copied' => 'Tôi đã sao chép',
+    'password_revoke_note' => 'Đổi mật khẩu sẽ thu hồi mọi token MCP của tài khoản. Sau đó hãy tạo token mới và cập nhật vào agent.',
 
     'list_title' => 'Danh sách token',
     'col_name' => 'Tên',
@@ -76,6 +77,10 @@ return [
         'tool_get_customer' => 'get_customer — chi tiết khách hàng',
         'tool_sales_summary' => 'sales_summary — tổng quan bán hàng',
         'tool_update_order_status' => 'update_order_status — đổi trạng thái đơn',
+        'tool_recent_changes' => 'recent_changes — thay đổi gần đây (nhật ký sự kiện)',
+        'tool_update_shipping_status' => 'update_shipping_status — đổi trạng thái giao hàng',
+        'tool_add_order_note' => 'add_order_note — thêm ghi chú đơn',
+        'tool_adjust_stock' => 'adjust_stock — nhập / xuất tồn kho',
     ],
 
     'error_denied' => 'Không có quyền.',
@@ -86,6 +91,11 @@ return [
     'error_range_too_long' => 'Khoảng ngày dài hơn :days ngày.',
     'error_bad_status' => 'Trạng thái đơn :status không tồn tại.',
     'error_confirm_code' => 'confirm_code không hợp lệ hoặc đã hết hạn. Gọi lại không kèm confirm_code để lấy bản xem trước mới.',
+    'error_bad_shipping_status' => 'Không có trạng thái giao hàng :status.',
+    'error_stock_negative' => 'Tồn kho không thể âm (hiện có :stock, thay đổi :delta).',
+    'error_stock_changed' => 'Tồn kho vừa thay đổi và thao tác này sẽ làm tồn âm; chưa ghi gì.',
+    'error_note_empty' => 'Ghi chú đang trống.',
+    'events_disabled_hint' => 'Nhật ký sự kiện đang tắt trên site này. Quản trị viên có thể bật ở màn quản lý API (Nhật ký sự kiện).',
 
     'create_subtitle' => 'Mỗi agent hoặc mỗi máy nên dùng một token riêng.',
     'level_read_hint' => 'Tra cứu sản phẩm, đơn hàng, khách hàng, số liệu bán hàng.',

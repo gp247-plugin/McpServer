@@ -7,6 +7,7 @@ use App\GP247\Plugins\McpServer\Services\PiiMasker;
 use App\GP247\Plugins\McpServer\Services\StoreContext;
 use App\GP247\Plugins\McpServer\Services\ToolException;
 use App\GP247\Plugins\McpServer\Support\Settings;
+use GP247\Shop\Models\ShopOrder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 
@@ -96,6 +97,35 @@ abstract class HandlerSupport
         }
 
         return $endOfDay ? $date->endOfDay() : $date->startOfDay();
+    }
+
+    /**
+     * Free text written into shop data by an agent: control characters removed (they break the
+     * history view and log lines), trimmed, cut to $max characters. HTML is escaped by the caller/seam.
+     *
+     * @aidlc-story US-plugin-mcp-server-order-note-write
+     */
+    protected function plainText(?string $text, int $max): string
+    {
+        $clean = trim((string) preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string) $text));
+
+        return mb_substr($clean, 0, $max);
+    }
+
+    /**
+     * Order by id inside the store scope; "not found" for an unknown id and for an order of
+     * another store alike (no existence disclosure).
+     *
+     * @throws ToolException
+     */
+    protected function findOrder(string $orderId, string $storeId): ShopOrder
+    {
+        $order = ShopOrder::query()->find($orderId);
+        if ($order === null || !$this->stores->contains($storeId, $order->store_id)) {
+            throw ToolException::notFound();
+        }
+
+        return $order;
     }
 
     /**

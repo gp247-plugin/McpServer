@@ -47,7 +47,7 @@ class ToolAuthorizer
      */
     public function allows(AdminUser $user, ?PersonalAccessToken $token, ToolDefinition $tool, ?string $recordId = null): bool
     {
-        if (!Settings::toolEnabled($tool->name)) {
+        if (!$tool->available() || !Settings::toolEnabled($tool->name)) {
             return false;
         }
         if (!McpToken::isMcp($token) || ($tool->isWrite() && !McpToken::canWrite($token))) {
@@ -60,9 +60,31 @@ class ToolAuthorizer
         if (!$this->mayUseMcp($user)) {
             return false;
         }
+        if ($tool->usesEventScreens()) {
+            return $this->readableEventTypes($user) !== [];
+        }
         $screen = $tool->screenUri($recordId);
 
         return $screen === null || $this->screenAllows($user, $screen, $tool->isWrite());
+    }
+
+    /**
+     * Event types of the core event log the user may read — those whose admin screen the user
+     * may open, the same rule as GET api/v2/core/events (L3 of recent_changes).
+     *
+     * @return string[]
+     *
+     * @aidlc-story US-plugin-mcp-server-recent-changes-read
+     */
+    public function readableEventTypes(AdminUser $user): array
+    {
+        try {
+            return (array) \GP247\Core\Api\Sync\EventType::readableBy($user);
+        } catch (\Throwable $e) {
+            SafeReport::throwable($e);
+
+            return [];
+        }
     }
 
     /**

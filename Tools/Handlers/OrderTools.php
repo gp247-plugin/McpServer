@@ -78,7 +78,7 @@ class OrderTools extends HandlerSupport
      */
     public function get(string $orderId, string $storeId): array
     {
-        $order = $this->find($orderId, $storeId);
+        $order = $this->findOrder($orderId, $storeId);
         $order->loadMissing(['details', 'history']);
         $masker = $this->masker();
 
@@ -138,7 +138,7 @@ class OrderTools extends HandlerSupport
      */
     public function updateStatus(array $args, string $storeId, AdminUser $actor, int|string $tokenId): array
     {
-        $order = $this->find((string) $args['order_id'], $storeId);
+        $order = $this->findOrder((string) $args['order_id'], $storeId);
         $statuses = ShopOrderStatus::getIdAll();
         $target = (int) $args['status'];
         if (!array_key_exists($target, $statuses)) {
@@ -187,16 +187,6 @@ class OrderTools extends HandlerSupport
 
             return ['applied' => true, 'order_id' => (string) $locked->id, 'status' => ['id' => $target, 'name' => (string) $statuses[$target]]];
         });
-    }
-
-    private function find(string $orderId, string $storeId): ShopOrder
-    {
-        $order = ShopOrder::query()->find($orderId);
-        if ($order === null || !$this->stores->contains($storeId, $order->store_id)) {
-            throw ToolException::notFound();
-        }
-
-        return $order;
     }
 
     /**

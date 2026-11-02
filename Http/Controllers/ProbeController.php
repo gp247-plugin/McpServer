@@ -3,6 +3,7 @@
 
 namespace App\GP247\Plugins\McpServer\Http\Controllers;
 
+use App\GP247\Plugins\McpServer\Support\EdgeResponse;
 use App\GP247\Plugins\McpServer\Support\Settings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ProbeController
      */
     public function __invoke(Request $request): JsonResponse
     {
-        if (!Settings::endpointEnabled()) {
+        if (!Settings::endpointEnabled() || !EdgeResponse::apiMasterSwitchOn()) {
             abort(404);
         }
         $header = (string) $request->headers->get('Authorization', '');

@@ -148,6 +148,7 @@
                 <x-gp247::button type="submit" class="w-full" data-testid="plugin-mcp-server-token-create">
                     <i class="fas fa-plus"></i> {{ gp247_language_render($l.'create') }}
                 </x-gp247::button>
+                <p class="text-xs text-gray-500 dark:text-gray-400" data-testid="plugin-mcp-server-password-revoke-note">{{ gp247_language_render($l.'password_revoke_note') }}</p>
             </form>
         </x-gp247::card>
 

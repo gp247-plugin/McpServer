@@ -72,6 +72,10 @@ sequenceDiagram
 | `search_customers`, `get_customer` | Find customers, view customer profile | Customers |
 | `sales_summary` | Revenue per currency, order counts, best sellers for a date range | Reports |
 | `update_order_status` *(write, off by default)* | Change an order status with the same rules as the admin panel (restock on cancel, history) | Edit orders |
+| `recent_changes` | What changed: new orders, status changes, stock movements, product and customer updates (needs the event log on the API management screen) | Screen of each kind of change |
+| `update_shipping_status` *(write, off by default)* | Change the shipping status of an order, recorded in the order history | Edit orders |
+| `add_order_note` *(write, off by default)* | Add an internal note to an order (labelled [MCP]) | Edit orders |
+| `adjust_stock` *(write, off by default)* | Receive or issue stock by a quantity (never below zero; no absolute overwrite) | Edit products |
 
 The shop owner switches **each tool** on or off for the whole site in **MCP Server settings**.
 
@@ -79,7 +83,7 @@ The shop owner switches **each tool** on or off for the whole site in **MCP Serv
 
 | Component | Version |
 |---|---|
-| S-Cart / GP247 core | 3.1 or later (with `gp247/shop`) |
+| S-Cart / GP247 core | 3.8 or later (with `gp247/shop` 3.7 or later) — on older versions the tools that need newer core/shop features stay hidden |
 | PHP | 8.3 or later |
 | Composer package | `laravel/mcp` ^1.0 |
 | Server | HTTPS recommended. **No** cron, queue worker, websocket or Node needed — works on shared hosting |
@@ -256,6 +260,10 @@ MCP (whole-site scope). Store managers are refused so they can never see another
 A partitioning plugin can register an MCP store resolver in the config key `gp247-config.mcp.store_resolver`
 (`callable(AdminUser $user): ?string` — return the store id, or `null` to refuse).
 
+When the partitioning plugin supports the admin REST API (config key `gp247-config.api.admin_fence`, e.g. MultiStore Pro),
+store managers can use MCP too, with the same rule as the REST API: connect the agent to the endpoint address **on the domain
+of the store you manage** — you then see only that store's data.
+
 ## Uninstall
 - **Uninstalling** the plugin removes its settings, menu and permissions and **revokes every MCP token**. Other API tokens are untouched.
 - **Disabling** the plugin (without uninstalling) keeps the tokens; the endpoint disappears until you enable it again.
@@ -298,6 +306,16 @@ MIT — same as S-Cart.
   the preview flags them so you can think twice.
 - **Reopening a canceled order is blocked when stock is insufficient** — same as the admin panel, so you never sell what is no longer in stock.
 - **While the read-only demo mode (SandboxDemo) is on, every write through MCP is blocked.**
+
+**Other write tools**
+- **Each write tool is switched on separately** in MCP Server settings — there is no switch that turns them all on.
+- **Shipping status and stock changes need the same preview + confirmation code** (5 minutes, single use, bound to the same token + record + change).
+- **Stock never goes below zero**: a change that would make it negative is refused, also when stock was spent between the preview and the confirmation.
+- **A note is added in one call** (it changes no money, stock or status), up to 1000 characters; the audit log keeps its length, not its text.
+
+**Things outside the plugin that also cut access**
+- **Changing your password revokes every MCP token of your account** — create a new token and update your agent afterwards.
+- **Turning off the whole REST API on the API management screen also turns MCP off** (404). The separate API v1 / v2 switches do not affect MCP.
 
 ## Q&A
 

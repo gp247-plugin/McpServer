@@ -17,6 +17,7 @@ return [
     'token_created_title' => '今すぐトークンをコピーしてください',
     'token_created_hint' => '再表示されません。エージェントの設定または環境変数に保存してください。',
     'token_copied' => 'コピーしました',
+    'password_revoke_note' => 'パスワードを変更すると、このアカウントのすべての MCP トークンが取り消されます。変更後は新しいトークンを作成し、エージェントに設定し直してください。',
 
     'list_title' => 'トークン',
     'col_name' => '名前',
@@ -76,6 +77,10 @@ return [
         'tool_get_customer' => 'get_customer — 顧客詳細',
         'tool_sales_summary' => 'sales_summary — 売上サマリー',
         'tool_update_order_status' => 'update_order_status — 注文ステータスの変更',
+        'tool_recent_changes' => 'recent_changes — 最近の変更 (イベントログ)',
+        'tool_update_shipping_status' => 'update_shipping_status — 配送ステータスの変更',
+        'tool_add_order_note' => 'add_order_note — 注文メモの追加',
+        'tool_adjust_stock' => 'adjust_stock — 在庫の入庫 / 出庫',
     ],
 
     'error_denied' => '許可されていません。',
@@ -86,6 +91,11 @@ return [
     'error_range_too_long' => '期間が :days 日を超えています。',
     'error_bad_status' => '不明な注文ステータス :status です。',
     'error_confirm_code' => 'confirm_code が無効か期限切れです。confirm_code なしで再度呼び出して新しいプレビューを取得してください。',
+    'error_bad_shipping_status' => '配送ステータス :status は存在しません。',
+    'error_stock_negative' => '在庫をマイナスにはできません (現在 :stock、変更 :delta)。',
+    'error_stock_changed' => '在庫が直前に変わり、この変更で在庫がマイナスになるため、何も書き込みませんでした。',
+    'error_note_empty' => 'メモが空です。',
+    'events_disabled_hint' => 'このサイトではイベントログがオフです。管理者が API 管理画面 (イベントログ) でオンにできます。',
 
     'create_subtitle' => 'エージェントやコンピューターごとに個別のトークンを用意してください。',
     'level_read_hint' => '商品・注文・顧客・売上を参照します。',

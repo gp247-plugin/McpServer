@@ -72,6 +72,10 @@ sequenceDiagram
 | `search_customers`, `get_customer` | Tìm khách, xem hồ sơ khách | Khách hàng |
 | `sales_summary` | Doanh thu theo từng tiền tệ, số đơn, sản phẩm bán chạy trong khoảng ngày | Báo cáo |
 | `update_order_status` *(ghi, mặc định tắt)* | Đổi trạng thái đơn với cùng quy tắc như trang quản trị (hoàn kho khi huỷ, ghi lịch sử) | Sửa đơn hàng |
+| `recent_changes` | Có gì thay đổi: đơn mới, đổi trạng thái, biến động kho, cập nhật sản phẩm và khách (cần bật nhật ký sự kiện ở màn quản lý API) | Màn của từng loại thay đổi |
+| `update_shipping_status` *(ghi, mặc định tắt)* | Đổi trạng thái giao hàng của đơn, ghi vào lịch sử đơn | Sửa đơn hàng |
+| `add_order_note` *(ghi, mặc định tắt)* | Thêm ghi chú nội bộ vào đơn (gắn nhãn [MCP]) | Sửa đơn hàng |
+| `adjust_stock` *(ghi, mặc định tắt)* | Nhập / xuất tồn kho theo số lượng (không bao giờ âm; không ghi đè tuyệt đối) | Sửa sản phẩm |
 
 Chủ cửa hàng bật/tắt **từng công cụ** cho cả site trong màn **Cấu hình MCP Server**.
 
@@ -79,7 +83,7 @@ Chủ cửa hàng bật/tắt **từng công cụ** cho cả site trong màn **C
 
 | Thành phần | Phiên bản |
 |---|---|
-| S-Cart / GP247 core | 3.1 trở lên (có `gp247/shop`) |
+| S-Cart / GP247 core | 3.8 trở lên (có `gp247/shop` 3.7 trở lên) — bản cũ hơn thì các công cụ cần tính năng mới của core/shop tự ẩn |
 | PHP | 8.3 trở lên |
 | Gói Composer | `laravel/mcp` ^1.0 |
 | Máy chủ | Nên có HTTPS. **Không** cần cron, queue worker, websocket hay Node — chạy được trên shared hosting |
@@ -252,6 +256,10 @@ MCP (phạm vi toàn site). Tài khoản quản lý từng cửa hàng bị từ
 Plugin phân vùng có thể đăng ký hàm xác định cửa hàng cho MCP qua khoá cấu hình `gp247-config.mcp.store_resolver`
 (`callable(AdminUser $user): ?string` — trả mã cửa hàng, hoặc `null` để từ chối).
 
+Khi plugin phân vùng hỗ trợ REST API quản trị (khoá cấu hình `gp247-config.api.admin_fence`, vd MultiStore Pro), quản lý cửa hàng
+cũng dùng được MCP, cùng quy tắc với REST API: kết nối agent tới địa chỉ endpoint **trên domain của cửa hàng bạn quản lý** —
+khi đó bạn chỉ thấy dữ liệu của cửa hàng đó.
+
 ## Gỡ cài đặt
 - **Gỡ** plugin: xoá cấu hình, menu, quyền của plugin và **thu hồi mọi token MCP**. Các token API khác không bị ảnh hưởng.
 - **Tắt** plugin (không gỡ): giữ nguyên token; endpoint biến mất cho tới khi bật lại.
@@ -290,6 +298,16 @@ MIT — như S-Cart.
   bản xem trước có ghi chú để bạn cân nhắc.
 - **Mở lại đơn đã huỷ bị chặn nếu không đủ tồn kho** — giống trang quản trị, để không bán thứ không còn trong kho.
 - **Khi demo chỉ-đọc (SandboxDemo) đang bật, mọi thao tác ghi qua MCP bị chặn.**
+
+**Các công cụ ghi khác**
+- **Mỗi công cụ ghi bật riêng** trong cấu hình MCP Server — không có công tắc bật tất cả.
+- **Đổi trạng thái giao hàng và đổi tồn kho cũng cần xem trước + mã xác nhận** (5 phút, dùng một lần, gắn với đúng token + bản ghi + thay đổi).
+- **Tồn kho không bao giờ âm**: thay đổi làm tồn âm bị từ chối, kể cả khi tồn bị dùng mất giữa lúc xem trước và lúc xác nhận.
+- **Ghi chú được thêm trong một lần gọi** (không đổi tiền, kho hay trạng thái), tối đa 1000 ký tự; nhật ký chỉ lưu độ dài, không lưu nội dung.
+
+**Những việc ngoài plugin cũng cắt truy cập**
+- **Đổi mật khẩu sẽ thu hồi mọi token MCP của tài khoản** — sau đó hãy tạo token mới và cập nhật vào agent.
+- **Tắt toàn bộ REST API ở màn quản lý API cũng tắt luôn MCP** (404). Các công tắc riêng của API v1 / v2 không ảnh hưởng MCP.
 
 ## Hỏi & Đáp (Q&A)
 

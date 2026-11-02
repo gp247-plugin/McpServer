@@ -28,6 +28,8 @@ class UpdateOrderStatusTool extends Gp247Tool
 {
     protected const TOOL = 'update_order_status';
 
+    protected const RECORD_ARGUMENT = 'order_id';
+
     /** Input schema. */
     public function schema(JsonSchema $schema): array
     {
@@ -48,12 +50,6 @@ class UpdateOrderStatusTool extends Gp247Tool
             'note' => 'nullable|string|max:500',
             'confirm_code' => 'nullable|string|max:64',
         ];
-    }
-
-    /** @param array<string, mixed> $arguments */
-    protected function recordId(array $arguments): ?string
-    {
-        return isset($arguments['order_id']) && is_scalar($arguments['order_id']) ? (string) $arguments['order_id'] : null;
     }
 
     /** @return array<string, mixed> */

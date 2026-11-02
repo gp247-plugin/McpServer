@@ -31,6 +31,9 @@ abstract class Gp247Tool extends Tool
     /** Catalog name of the tool (must match the #[Name] attribute). */
     protected const TOOL = '';
 
+    /** Argument holding the record id for screens with "{id}"; null = none. */
+    protected const RECORD_ARGUMENT = null;
+
     /**
      * laravel/mcp hides the tool from tools/list AND refuses tools/call when this is false.
      */
@@ -100,7 +103,9 @@ abstract class Gp247Tool extends Tool
      */
     protected function recordId(array $arguments): ?string
     {
-        return null;
+        $key = static::RECORD_ARGUMENT;
+
+        return $key !== null && isset($arguments[$key]) && is_scalar($arguments[$key]) ? (string) $arguments[$key] : null;
     }
 
     /**

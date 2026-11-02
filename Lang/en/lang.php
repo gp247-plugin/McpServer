@@ -17,6 +17,7 @@ return [
     'token_created_title' => 'Copy your token now',
     'token_created_hint' => 'It will not be shown again. Store it in your agent configuration or an environment variable.',
     'token_copied' => 'I have copied it',
+    'password_revoke_note' => 'Changing your password revokes every MCP token of your account. Create a new token and update your agent afterwards.',
 
     'list_title' => 'Tokens',
     'col_name' => 'Name',
@@ -76,6 +77,10 @@ return [
         'tool_get_customer' => 'get_customer — customer details',
         'tool_sales_summary' => 'sales_summary — sales summary',
         'tool_update_order_status' => 'update_order_status — change order status',
+        'tool_recent_changes' => 'recent_changes — recent changes (event log)',
+        'tool_update_shipping_status' => 'update_shipping_status — change shipping status',
+        'tool_add_order_note' => 'add_order_note — add an order note',
+        'tool_adjust_stock' => 'adjust_stock — receive / issue stock',
     ],
 
     'error_denied' => 'Not allowed.',
@@ -86,6 +91,11 @@ return [
     'error_range_too_long' => 'The date range is longer than :days days.',
     'error_bad_status' => 'Unknown order status :status.',
     'error_confirm_code' => 'Invalid or expired confirm_code. Call again without confirm_code to get a new preview.',
+    'error_bad_shipping_status' => 'Unknown shipping status :status.',
+    'error_stock_negative' => 'Stock cannot go below zero (current :stock, change :delta).',
+    'error_stock_changed' => 'The stock changed meanwhile and this change would make it negative; nothing was written.',
+    'error_note_empty' => 'The note is empty.',
+    'events_disabled_hint' => 'The event log is turned off on this site. An administrator can turn it on on the API management screen (Event log).',
 
     'create_subtitle' => 'Each agent or computer should get its own token.',
     'level_read_hint' => 'Look up products, orders, customers and sales.',

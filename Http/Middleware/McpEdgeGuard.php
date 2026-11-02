@@ -8,6 +8,7 @@ use App\GP247\Plugins\McpServer\Services\McpContext;
 use App\GP247\Plugins\McpServer\Services\McpToken;
 use App\GP247\Plugins\McpServer\Services\StoreContext;
 use App\GP247\Plugins\McpServer\Services\ToolAuthorizer;
+use App\GP247\Plugins\McpServer\Support\EdgeResponse;
 use App\GP247\Plugins\McpServer\Tools\ToolCatalog;
 use Closure;
 use GP247\Core\Models\AdminUser;
@@ -53,14 +54,16 @@ class McpEdgeGuard
             return $this->unauthenticated();
         }
         if (!McpToken::isMcp($token) || !$this->authorizer->mayUseMcp($user)) {
-            return response()->json(['error' => 'insufficient_scope'], 403);
+            return EdgeResponse::refuse(403, 'insufficient_scope', 'This token cannot use MCP');
         }
-        $storeId = $this->stores->resolve($user);
+        // WHY before resolving the store: store resolvers and fences read the actor through the
+        // admin guard (AdminUserContract), as the core admin API does (ApiAdminAuthorize).
+        Auth::guard('admin')->setUser($user);
+        $storeId = $this->stores->resolve($user, $request);
         if ($storeId === null) {
-            return response()->json(['error' => 'store_scope_denied'], 403);
+            return EdgeResponse::refuse(403, 'store_scope_denied', 'This account cannot use MCP on this store');
         }
 
-        Auth::guard('admin')->setUser($user);
         app()->instance(McpContext::class, new McpContext($user, $token, $storeId));
         $this->auditRefusedCall($request, $user, $token);
 
@@ -98,6 +101,6 @@ class McpEdgeGuard
      */
     private function unauthenticated(): Response
     {
-        return response()->json(['message' => 'Unauthenticated.'], 401, ['WWW-Authenticate' => 'Bearer']);
+        return EdgeResponse::unauthenticated();
     }
 }

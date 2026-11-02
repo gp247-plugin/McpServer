@@ -26,6 +26,12 @@ class AuditLog
     private const MAX_INPUT_BYTES = 60000;
 
     /**
+     * Free-text arguments logged by length only: they are written into shop data verbatim and
+     * may carry personal details the PII scrubber does not recognise (US-plugin-mcp-server-order-note-write).
+     */
+    private const LENGTH_ONLY = ['add_order_note' => ['note']];
+
+    /**
      * Record one tools/call.
      *
      * @param array<string, mixed> $arguments Raw tool arguments (scrubbed here).
@@ -38,7 +44,7 @@ class AuditLog
             'MCP',
             [
                 'token' => ['id' => $token?->getKey(), 'name' => $token?->name],
-                'arguments' => $this->scrubArguments($arguments),
+                'arguments' => $this->scrubArguments($tool, $arguments),
                 'outcome' => $outcome,
                 'error' => $error === null ? null : PiiMasker::scrub($error),
             ]
@@ -59,12 +65,15 @@ class AuditLog
      * @param array<string, mixed> $arguments
      * @return array<string, mixed>
      */
-    private function scrubArguments(array $arguments): array
+    private function scrubArguments(string $tool, array $arguments): array
     {
         $clean = [];
+        $lengthOnly = self::LENGTH_ONLY[$tool] ?? [];
         foreach ($arguments as $key => $value) {
             if ($key === 'confirm_code') {
                 $clean[$key] = '[redacted]';
+            } elseif (in_array($key, $lengthOnly, true)) {
+                $clean[$key] = '[' . (is_string($value) ? mb_strlen($value) : 0) . ' chars]';
             } elseif (is_string($value)) {
                 $clean[$key] = PiiMasker::scrub(mb_substr($value, 0, 500));
             } elseif (is_scalar($value) || $value === null) {

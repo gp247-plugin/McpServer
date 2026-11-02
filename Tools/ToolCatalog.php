@@ -3,8 +3,11 @@
 
 namespace App\GP247\Plugins\McpServer\Tools;
 
+use GP247\Shop\Models\ShopOrder;
+use GP247\Shop\Models\ShopProduct;
+
 /**
- * Single registry of the tools the plugin can expose (Unit "Tool catalog v1").
+ * Single registry of the tools the plugin can expose (Unit "Tool catalog v1" + 1.1.0).
  *
  * @aidlc-unit plugin-mcp-server
  * @aidlc-story US-plugin-mcp-server-rbac-tools
@@ -38,6 +41,14 @@ final class ToolCatalog
             new ToolDefinition('get_customer', $read, 'customer', true),
             new ToolDefinition('sales_summary', $read, 'report/product', true),
             new ToolDefinition('update_order_status', ToolDefinition::WRITE, 'order/detail/{id}', false),
+            // 1.1.0 (mod 20261102T211527): seams of gp247/shop 3.6.0 and gp247/core 3.7.0. Which write
+            // tools need a confirm code is decided by ADR-plugin-mcp-server-write-tool-policy, in each handler.
+            new ToolDefinition('recent_changes', $read, ToolDefinition::EVENTS_SCREEN, true, [
+                'GP247\Core\Api\Sync\ApiEvents', 'GP247\Core\Api\Sync\EventType::readableBy', 'GP247\Core\Api\Sync\EventPayload::fromRow',
+            ]),
+            new ToolDefinition('update_shipping_status', ToolDefinition::WRITE, 'order/detail/{id}', false, [ShopOrder::class . '::changeShippingStatus']),
+            new ToolDefinition('add_order_note', ToolDefinition::WRITE, 'order/detail/{id}', false, [ShopOrder::class . '::addNote']),
+            new ToolDefinition('adjust_stock', ToolDefinition::WRITE, 'product', false, [ShopProduct::class . '::adjustStock']),
         ];
 
         $map = [];
